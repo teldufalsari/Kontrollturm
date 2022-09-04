@@ -1,0 +1,4 @@
+config.py
+SU_WORKERS_DB.db
+su_worker_bot_log.txt
+__pycache__
