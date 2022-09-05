@@ -91,7 +91,7 @@ def getWorkerInfo(name):
             sqlite_connection.close()
             logging.info('Requested user from DB: [data = ' + str(result) + ']')
             
-    if result != None:        
+    if result != None and name != None:        
         print("user: [" + name + "] info: \n" + str(result))
             
     return result
