@@ -50,7 +50,7 @@ def WorkStartCallback(chat, bot):
     starts, ends, waitingFor, descrs = parseData(chat.username)
     
     if len(starts) != len(ends):
-        bot.send_message(chat.id, "Вы не закончили предыдущую трудовую сессию...")
+        bot.send_message(chat.id, "Вы не закончили предыдущий рабочий промежуток. Нажмите отметку об окончании.")
     else:
         workerDatabaseManager.workStarted(chat.username)
         bot.send_message(chat.id, "Время начала работы учтено...")
@@ -61,10 +61,10 @@ def WorkEndCallback(chat, bot):
     starts, ends, waitingFor, descrs = parseData(chat.username)
     
     if len(starts) - 1 != len(ends):
-        bot.send_message(chat.id, "Вы не начали трудовую сессию...")
+        bot.send_message(chat.id, "Вы не начали рабочую сессию. Нажмите отметку о начале.")
         bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
     else:
-        mesg = bot.send_message(chat.id, "Напишите, что вы сделали за день!")
+        mesg = bot.send_message(chat.id, "Напишите, что вы сделали за последний рабочий промежуток. Если вы ненадолго прерываете работу, то напишите причину.")
         bot.register_next_step_handler(mesg, DayComments, bot)
     
 def UserInfoCallback(chat, bot):
@@ -144,19 +144,8 @@ def StatusCallback(chat, bot):
             msg += "-> Длительность: " + str(td.seconds//3600) + ":" + str((td.seconds//60)%60) + ", сделано: \n" + descrs[i] + "\n"
     
         if len(starts) - 1 == len(ends):
-            msg += "-> Незаконченная сессия: " + str(starts[-1].strftime("%H:%M")) + "\n"
+            msg += "-> Незаконченный рабочий промежуток: " + str(starts[-1].strftime("%H:%M")) + "\n"
         
         bot.send_message(chat.id, msg)
                 
-    bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
-    
-def PauseCallback(chat, bot):
-    starts, ends, waitingFor, descrs = parseData(chat.username)
-    
-    if len(starts) - 1 != len(ends):
-        bot.send_message(chat.id, "Вы не начали трудовую сессию...")
-    else:
-        workerDatabaseManager.workEnded(chat.username, "pause")
-        bot.send_message(chat.id, "Время окончания работы учтено...")
-        
     bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))

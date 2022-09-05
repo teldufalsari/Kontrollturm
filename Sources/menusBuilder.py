@@ -15,11 +15,9 @@ def buildStartMenu(user):
                       ['Отметка о конце работы', 'WorkEnd'],
                       ['Информация', 'UserInfo'],
                       ['Отчет за сегодня', 'ForToday'],
-                      ['Статус', 'Status'],
-                      ['Пауза', 'Pause']
+                      ['Статус', 'Status']
                ])
     return buildMenu([['Отметка о начале работы', 'WorkStart'],
-                        ['Пауза', 'Pause'],
                       ['Отметка о конце работы', 'WorkEnd'],
                       ['Статус', 'Status']
                ])         
