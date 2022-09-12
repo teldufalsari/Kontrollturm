@@ -1,0 +1,18 @@
+[MESSAGES]
+prompt = Welcome the the Kontrollturm!
+finish_time_saved = Job finish time has been saved
+interval_not_finished = You have not finished your job interval yet. Press "Finish" to do so
+start_time_saved = Job start time has been saved
+interval_not_started = You have not started your job session yet. Press "Start" to to so
+write_report = Write a brief report of your session if you are finising the session, or write "break" if you are leaving for a break
+work_statistics = Employee work statistics
+employee_activity = Employee activity:
+intervals_started = Intervals started:
+intervals_finished = Intervals finished:
+unfinished_session = Unfinished session:
+unfinished_interval = Unfinished interval
+enter_employee_name = Enter employee name to retrieve their statistics
+duration = Duration:
+tasks_completed = Tasks completed:
+today_stats = Employee statistics for today
+
