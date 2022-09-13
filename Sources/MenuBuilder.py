@@ -1,4 +1,3 @@
-import telebot
 from telebot import types
 
 def createMenuMarkup(buttons):
@@ -22,7 +21,7 @@ def unprivilegedMenuMarkup():
     return createMenuMarkup([
         ['Отметка о начале работы', 'workStart'],
         ['Отметка о конце работы', 'workEnd'],
-        ['Статус', 'status']])    
+        ['Статус', 'status']])
 
 
 def buildStartMenu(username):

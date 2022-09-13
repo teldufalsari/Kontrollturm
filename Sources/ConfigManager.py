@@ -71,7 +71,7 @@ class ConfigParser:
         else:
             self.createDefaultConfig('settings.ini')
             self.settings = loadConfig('settings.ini')
-        
+
         msg_file_path = 'lang/' + self.settings['GENERAL']['language']
         if not exists(msg_file_path):
             print('file ' + msg_file_path + ' does not exist, falling back to defaults')
@@ -143,7 +143,7 @@ class ConfigParser:
             self.messages['MESSAGES']['tasks_completed'],
             self.messages['MESSAGES']['today_stats'],
         )
-    
+
     def loadSettings(self) -> SettingsList:
         return SettingsList(
             self.settings['GENERAL']['token'],

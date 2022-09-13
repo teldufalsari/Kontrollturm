@@ -1,6 +1,5 @@
 from datetime import datetime
 import telebot
-from telebot import types
 
 
 import ConfigManager
@@ -19,7 +18,7 @@ class ButtonCallbackManager:
     def callMenu(self, chat):
         self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username))
 
-    
+
     def parseData(self, username):
         data = workerDatabaseManager.getWorkerInfo(username)
         starts = []
@@ -35,7 +34,7 @@ class ButtonCallbackManager:
                 descrs.append(line[4])
                 waiting_for = 'start'
         return starts, ends, waiting_for, descrs
-    
+
 
     def dayComments(self, message) -> None:
         workerDatabaseManager.workEnded(message.chat.username, message.text)
@@ -91,7 +90,7 @@ class ButtonCallbackManager:
                 users[line[1]] = []
             if dt.date() == datetime.today().date():
                 users[line[1]].append(line)
-                
+
         for key, val in users.items():
             msg = self.config.messages.employee_activity + ' ' + key + "\n"
             starts = []
@@ -103,14 +102,14 @@ class ButtonCallbackManager:
                 if line[3] == 'endTime':
                     ends.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
                     descrs.append(line[4])
-            
+
             msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
             msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
             for i in range(min(len(starts), len(ends))):
                 td = ends[i]-starts[i]
                 msg += '-> ' + self.config.messages.duration +  str(td.seconds//3600) + ':' + str((td.seconds//60)%60) + ', '
                 msg += self.config.messages.tasks_completed + ':\n' + descrs[i] + '\n'
-        
+
             if len(starts) - 1 == len(ends):
                 msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
             self.bot.send_message(chat.id, msg)
@@ -120,14 +119,14 @@ class ButtonCallbackManager:
     def statusCallback(self, chat):
         data = workerDatabaseManager.getAll()
         users = {}
-        
+
         for line in data:
             dt = datetime.fromtimestamp(int(line[0])/1000.0)
             if users.get(line[1]) == None:
                 users[line[1]] = []
             if dt.date() == datetime.today().date():
-                users[line[1]].append(line)     
-        
+                users[line[1]].append(line)
+
         for key, val in users.items():
             if key != chat.username:
                 continue
@@ -135,7 +134,7 @@ class ButtonCallbackManager:
             starts = []
             ends = []
             descrs = []
-            
+
             for line in val:
                 if line[3] == 'startTime':
                     starts.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
@@ -144,14 +143,14 @@ class ButtonCallbackManager:
                     descrs.append(line[4])
             msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
             msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
-            
+
             for i in range(min(len(starts), len(ends))):
                 td = ends[i]-starts[i]
                 msg += '-> ' + self.config.messages.duration + ': ' + str(td.seconds//3600) + ':' + str((td.seconds//60)%60) + ', '
                 msg += self.config.messages.tasks_completed + ': \n' + descrs[i] + '\n'
-            
+
             if len(starts) - 1 == len(ends):
                 msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
             self.bot.send_message(chat.id, msg)
-        
+
         self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username))
