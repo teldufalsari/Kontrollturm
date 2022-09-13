@@ -24,7 +24,7 @@ class KontrollBot:
         @self.bot.callback_query_handler(func=lambda call: True)
         def buttons(call):
             cbName = call.data
-            getattr(self.callback_manager, cbName + 'Callback')(call.message.chat, self.bot)
+            getattr(self.callback_manager, cbName + 'Callback')(call.message.chat)
             self.bot.answer_callback_query(call.id)
 
 
