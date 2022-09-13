@@ -1,8 +1,9 @@
 import sqlite3
 import logging
 from datetime import datetime
-import config
 import time
+
+path = 'SU_WORKERS_DB.db'
 
 def current_milli_time():
     return round(time.time() * 1000)
@@ -10,7 +11,8 @@ def current_milli_time():
 def workStarted(name):
     sqlite_connection = None
     try:
-        sqlite_connection = sqlite3.connect(config.database_path)
+        # TMP!! ADD CONFIG HERE!!!
+        sqlite_connection = sqlite3.connect(path)
         cursor = sqlite_connection.cursor()
 
         sqlite_insert_with_param = """INSERT or IGNORE INTO SU_WORKERS_DB
@@ -39,7 +41,7 @@ def workEnded(name, text):
     sqlite_connection = None
     
     try:
-        sqlite_connection = sqlite3.connect(config.database_path)
+        sqlite_connection = sqlite3.connect(path)
         cursor = sqlite_connection.cursor()
 
         sqlite_insert_with_param = """INSERT or IGNORE INTO SU_WORKERS_DB
@@ -69,7 +71,7 @@ def getWorkerInfo(name):
     result = []
     
     try:
-        sqlite_connection = sqlite3.connect(config.database_path)
+        sqlite_connection = sqlite3.connect(path)
         cursor = sqlite_connection.cursor()
 
         sql_select_query = """select * from SU_WORKERS_DB"""
@@ -101,7 +103,7 @@ def getAll():
     result = []
     
     try:
-        sqlite_connection = sqlite3.connect(config.database_path)
+        sqlite_connection = sqlite3.connect(path)
         cursor = sqlite_connection.cursor()
 
         sql_select_query = """select * from SU_WORKERS_DB"""

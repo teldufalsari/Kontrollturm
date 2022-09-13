@@ -1,7 +1,7 @@
-import config
-import menusBuilder
+import MenuBuilder
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import telebot
 from telebot import types
 import workerDatabaseManager
 import logging
@@ -29,7 +29,7 @@ def parseData(name):
 def DayComments(message, bot):
     workerDatabaseManager.workEnded(message.chat.username, message.text)
     bot.send_message(message.chat.id, "Время окончания работы учтено...")
-    bot.send_message(message.chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(message.chat.username))
+    bot.send_message(message.chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(message.chat.username))
 
 def NameAsk(message, bot):
     starts, ends, waitingFor, descrs = parseData(message.text)
@@ -44,7 +44,7 @@ def NameAsk(message, bot):
         msg += "-> Незаконченная сессия: " + str(starts[-1].strftime("%d/%m/%Y %H:%M")) + "\n"
     
     bot.send_message(message.chat.id, msg)
-    bot.send_message(message.chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(message.chat.username))
+    bot.send_message(message.chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(message.chat.username))
 
 def WorkStartCallback(chat, bot):
     starts, ends, waitingFor, descrs = parseData(chat.username)
@@ -55,14 +55,14 @@ def WorkStartCallback(chat, bot):
         workerDatabaseManager.workStarted(chat.username)
         bot.send_message(chat.id, "Время начала работы учтено...")
         
-    bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
+    bot.send_message(chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(chat.username))
 
 def WorkEndCallback(chat, bot):
     starts, ends, waitingFor, descrs = parseData(chat.username)
     
     if len(starts) - 1 != len(ends):
         bot.send_message(chat.id, "Вы не начали рабочую сессию. Нажмите отметку о начале.")
-        bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
+        bot.send_message(chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(chat.username))
     else:
         mesg = bot.send_message(chat.id, "Напишите, что вы сделали за последний рабочий промежуток. Если вы ненадолго прерываете работу, то напишите причину.")
         bot.register_next_step_handler(mesg, DayComments, bot)
@@ -107,7 +107,7 @@ def ForTodayCallback(chat, bot):
         
         bot.send_message(chat.id, msg)
                 
-    bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
+    bot.send_message(chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(chat.username))
             
 def StatusCallback(chat, bot):
     data = workerDatabaseManager.getAll()
@@ -148,4 +148,4 @@ def StatusCallback(chat, bot):
         
         bot.send_message(chat.id, msg)
                 
-    bot.send_message(chat.id, "menu", reply_markup=menusBuilder.buildStartMenu(chat.username))
+    bot.send_message(chat.id, "menu", reply_markup=MenuBuilder.buildStartMenu(chat.username))
