@@ -4,23 +4,25 @@ import telebot
 
 import ConfigManager
 import MenuBuilder
-import workerDatabaseManager
+import DatabaseManager
 
 
 class ButtonCallbackManager:
     config : ConfigManager.ConfigManager
     bot : telebot.TeleBot
+    db_manager : DatabaseManager.DatabaseManager
 
-    def __init__(self, config_, bot_ : ConfigManager.ConfigManager) -> None:
+    def __init__(self, config_ : ConfigManager.ConfigManager, bot_ : telebot.TeleBot) -> None:
         self.config = config_
         self.bot = bot_
+        self.db_manager = DatabaseManager.DatabaseManager(self.config.settings.database_file_path)
 
     def callMenu(self, chat):
         self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username))
 
 
     def parseData(self, username):
-        data = workerDatabaseManager.getWorkerInfo(username)
+        data = self.db_manager.getWorkerInfo(username)
         starts = []
         ends = []
         descrs = []
@@ -37,7 +39,7 @@ class ButtonCallbackManager:
 
 
     def dayComments(self, message) -> None:
-        workerDatabaseManager.workEnded(message.chat.username, message.text)
+        self.db_manager.workEnded(message.chat.username, message.text)
         self.bot.send_message(message.chat.id, self.config.messages.finish_time_saved)
         self.bot.send_message(message.chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(message.chat.username))
 
@@ -61,7 +63,7 @@ class ButtonCallbackManager:
         if len(starts) != len(ends):
             self.bot.send_message(chat.id, self.config.messages.interval_not_finished)
         else:
-            workerDatabaseManager.workStarted(chat.username)
+            self.db_manager.workStarted(chat.username)
             self.bot.send_message(chat.id, self.config.messages.start_time_saved)
         self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username))
 
@@ -82,7 +84,7 @@ class ButtonCallbackManager:
 
 
     def forTodayCallback(self, chat):
-        data = workerDatabaseManager.getAll()
+        data = self.db_manager.getAll()
         users = {}
         for line in data:
             dt = datetime.fromtimestamp(int(line[0])/1000.0)
@@ -117,7 +119,7 @@ class ButtonCallbackManager:
 
 
     def statusCallback(self, chat):
-        data = workerDatabaseManager.getAll()
+        data = self.db_manager.getAll()
         users = {}
 
         for line in data:
