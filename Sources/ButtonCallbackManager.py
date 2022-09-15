@@ -38,13 +38,13 @@ class ButtonCallbackManager:
         return starts, ends, waiting_for, descrs
 
 
-    def dayComments(self, message) -> None:
+    def dayComments(self, message, bot_dummy) -> None:
         self.db_manager.workEnded(message.chat.username, message.text)
         self.bot.send_message(message.chat.id, self.config.messages.finish_time_saved)
         self.bot.send_message(message.chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(message.chat.username))
 
 
-    def nameAsk(self, message) -> None:
+    def nameAsk(self, message, bot_dummy) -> None:
         starts, ends, waiting_for, descrs = self.parseData()
         msg = self.config.messages.work_statistics + ' ' + message.text + '\n'
         msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
@@ -75,12 +75,12 @@ class ButtonCallbackManager:
             self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username))
         else:
             mesg = self.bot.send_message(chat.id, self.config.messages.write_report)
-            self.bot.register_next_step_handler(mesg, self.DayComments, self.bot)
+            self.bot.register_next_step_handler(mesg, self.dayComments, self.bot)
 
 
     def userInfoCallback(self, chat):
         mesg = self.bot.send_message(chat.id, self.config.messages.enter_employee_name)
-        self.bot.register_next_step_handler(mesg, self.NameAsk, self.bot)
+        self.bot.register_next_step_handler(mesg, self.nameAsk, self.bot)
 
 
     def forTodayCallback(self, chat):

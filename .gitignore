@@ -2,3 +2,4 @@ settings.ini
 *.db
 *.s3db
 __pycache__
+*.txt
