@@ -1,0 +1,25 @@
+[MESSAGES]
+prompt = Вас приветствует бот для сотрудников от компании SteelUnicorn LLC
+finish_time_saved = Время окончания работы учтено...
+interval_not_finished = Вы не закончили предыдущий рабочий промежуток. Нажмите отметку об окончании.
+start_time_saved = Время начала работы учтено...
+interval_not_started = Вы не начали рабочую сессию. Нажмите отметку о начале.
+write_report = Напишите, что вы сделали за последний рабочий промежуток. Если вы ненадолго прерываете работу, то напишите причину.
+work_statistics = Информация о трудовых успехах товарища
+employee_activity = Активность товарища
+intervals_started = Отметок о начале
+intervals_finished = отметок об окончании
+unfinished_session = Незаконченная сессия
+unfinished_interval = Незаконченный рабочий промежуток
+enter_employee_name = Напишите имя товарища, успехи которого хотите узнать
+duration = Длительность
+tasks_completed = сделано
+today_stats = Статус текущего пользователя на сегодня
+
+[BUTTONS]
+start_interval = Отметка о начале работы
+finish_interval = Отметка о конце работы
+info = Информация
+today_report = Отчет за сегодня
+status = Статус
+

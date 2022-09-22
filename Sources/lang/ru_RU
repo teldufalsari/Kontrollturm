@@ -1,0 +1,25 @@
+[MESSAGES]
+prompt = Вас приветствует Kontrollturm!
+finish_time_saved = Время окончания работы сохранено
+interval_not_finished = Вы не закончили интервал. Нажмите "Закончить интервал", прежде чем начать новый
+start_time_saved = Время начала работы сохранено
+interval_not_started = Вы ещё не начали интервал. Нажимте "Начать интервал"
+write_report = Напишмте короткое описание выполненных задач или напишите "перерыв", если Вы уходите на перерыв
+work_statistics = Статистика для работника
+employee_activity = Активность работника
+intervals_started = Интервалов начато
+intervals_finished = Интервалов окончено
+unfinished_session = Незаконченная сессия
+unfinished_interval = Незаконченный интервал
+enter_employee_name = Напишите имя работника, для которого Вы хотите собрать статистику
+duration = Длительность
+tasks_completed = Выполненные задачи
+today_stats = Ваша статистика на сегодня
+
+[BUTTONS]
+start_interval = Начать интервал
+finish_interval = Закончить интервал
+info = Информация
+today_report = Отчёт за сегодня
+status = Статус
+
