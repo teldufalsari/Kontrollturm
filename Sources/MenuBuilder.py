@@ -1,8 +1,8 @@
 from telebot import types
 
-from ButtonsList import ButtonsList
+from Sources.SettingsLists import ButtonsList
 
-def createMenuMarkup(buttons):
+def createMenuMarkup(buttons) -> types.InlineKeyboardMarkup:
     markup = types.InlineKeyboardMarkup()
     for button in buttons:
         inline_button = types.InlineKeyboardButton(button[0], callback_data=button[1])
@@ -16,8 +16,7 @@ class MenuBuilder():
     def __init__(self, buttons_ : dict) -> None:
         self.buttons = buttons_
 
-
-    def privilegedMenuMarkup(self):
+    def privilegedMenuMarkup(self) -> types.InlineKeyboardMarkup:
         return createMenuMarkup([
             [self.buttons.start_interval, 'workStart'],
             [self.buttons.finish_interval, 'workEnd'],
@@ -25,13 +24,13 @@ class MenuBuilder():
             [self.buttons.today_report, 'forToday'],
             [self.buttons.status, 'status']])
 
-    def unprivilegedMenuMarkup(self):
+    def unprivilegedMenuMarkup(self) -> types.InlineKeyboardMarkup:
         return createMenuMarkup([
             [self.buttons.start_interval, 'workStart'],
             [self.buttons.finish_interval, 'workEnd'],
             [self.buttons.status, 'status']])
 
-    def buildStartMenu(self, username : str, privileged_users : dict):
+    def buildStartMenu(self, username : str, privileged_users : dict) -> types.InlineKeyboardMarkup:
         if username in privileged_users:
             return self.privilegedMenuMarkup()
         else:

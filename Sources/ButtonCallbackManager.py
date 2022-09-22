@@ -1,20 +1,19 @@
 from datetime import datetime
 import telebot
 
-
-import ConfigManager
-import DatabaseManager
+from Sources.ConfigManager import ConfigManager
+from Sources.DatabaseManager import DatabaseManager
 
 
 class ButtonCallbackManager:
-    config : ConfigManager.ConfigManager
+    config : ConfigManager
     bot : telebot.TeleBot
-    db_manager : DatabaseManager.DatabaseManager
+    db_manager : DatabaseManager
 
-    def __init__(self, config_ : ConfigManager.ConfigManager, bot_ : telebot.TeleBot) -> None:
+    def __init__(self, config_ : ConfigManager, bot_ : telebot.TeleBot) -> None:
         self.config = config_
         self.bot = bot_
-        self.db_manager = DatabaseManager.DatabaseManager(self.config.settings.database_file_path)
+        self.db_manager = DatabaseManager(self.config.settings.database_file_path)
 
     def callMenu(self, chat):
         self.bot.send_message(chat.id,'menu', reply_markup=self.config.menu_builder.buildStartMenu(chat.username, self.config.privileged_users))
@@ -112,7 +111,7 @@ class ButtonCallbackManager:
                 msg += self.config.messages.tasks_completed + ':\n' + descrs[i] + '\n'
 
             if len(starts) - 1 == len(ends):
-                msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
+                msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
             self.bot.send_message(chat.id, msg)
         self.callMenu(chat)
 
@@ -151,6 +150,6 @@ class ButtonCallbackManager:
                 msg += self.config.messages.tasks_completed + ': \n' + descrs[i] + '\n'
 
             if len(starts) - 1 == len(ends):
-                msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
+                msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
             self.bot.send_message(chat.id, msg)
         self.callMenu(chat)

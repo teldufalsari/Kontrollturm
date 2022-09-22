@@ -1,10 +1,8 @@
 import configparser as cfg
 from os.path import exists
 
-import MenuBuilder
-from ButtonsList import ButtonsList
-from MessagesList import MessagesList
-from SettingsList import SettingsList
+from Sources.MenuBuilder import MenuBuilder
+from Sources.SettingsLists import ButtonsList, MessagesList, SettingsList
 
 def loadConfig(path) -> cfg.ConfigParser:
     config = cfg.ConfigParser()
@@ -122,7 +120,7 @@ class ConfigParser:
 class ConfigManager:
     settings : SettingsList
     messages : MessagesList
-    menu_builder : MenuBuilder.MenuBuilder
+    menu_builder : MenuBuilder
     privileged_users : dict
     unprivileged_users : dict
 
@@ -130,7 +128,7 @@ class ConfigManager:
         parser = ConfigParser()
         self.settings = parser.loadSettings()
         self.messages = parser.loadMessages()
-        self.menu_builder = MenuBuilder.MenuBuilder(parser.loadButtons())
+        self.menu_builder = MenuBuilder(parser.loadButtons())
         self.privileged_users = {}
         for username in parser.settings['PRIVILEGED_USERS']:
             self.privileged_users.update({username : parser.settings['PRIVILEGED_USERS'].get(username, fallback=username)})

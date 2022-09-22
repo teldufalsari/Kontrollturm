@@ -1,21 +1,20 @@
 import telebot
-from telebot import types
 import logging
 
-from MenuBuilder import MenuBuilder
-import ConfigManager
-import ButtonCallbackManager
+from Sources.MenuBuilder import MenuBuilder
+from Sources.ConfigManager import ConfigManager
+from Sources.ButtonCallbackManager import ButtonCallbackManager
 
 class KontrollBot:
     bot : telebot.TeleBot
-    config : ConfigManager.ConfigManager
-    callback_manager : ButtonCallbackManager.ButtonCallbackManager
+    config : ConfigManager
+    callback_manager : ButtonCallbackManager
 
-    def __init__(self, config_ : ConfigManager.ConfigManager) -> None:
+    def __init__(self, config_ : ConfigManager) -> None:
         self.config = config_
         logging.basicConfig(filename=self.config.settings.log_file_path, level=logging.DEBUG)
         self.bot = telebot.TeleBot(self.config.settings.token)
-        self.callback_manager = ButtonCallbackManager.ButtonCallbackManager(self.config, self.bot)
+        self.callback_manager = ButtonCallbackManager(self.config, self.bot)
 
         @self.bot.message_handler(commands=['start'])
         def starter(message):

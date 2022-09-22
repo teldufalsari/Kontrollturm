@@ -1,3 +1,31 @@
+class ButtonsList():
+    start_interval = ''
+    finish_interval = ''
+    info = ''
+    today_report = ''
+    status = ''
+
+    def __init__(self, start_interval_, finish_interval_, info_, today_report_, status_) -> None:
+        self.start_interval = start_interval_
+        self.finish_interval = finish_interval_
+        self.info = info_
+        self.today_report = today_report_
+        self.status = status_
+
+
+class SettingsList():
+    token = ''
+    log_file_path = ''
+    database_file_path = ''
+    language = ''
+
+    def __init__(self, token_, log_file_path_, database_file_path_, language_) -> None:
+        self.token = token_
+        self.log_file_path = log_file_path_
+        self.database_file_path = database_file_path_
+        self.language = language_
+
+
 class MessagesList():
     prompt = ''
     finish_time_saved = ''
