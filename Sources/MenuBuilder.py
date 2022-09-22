@@ -1,5 +1,7 @@
 from telebot import types
 
+from ButtonsList import ButtonsList
+
 def createMenuMarkup(buttons):
     markup = types.InlineKeyboardMarkup()
     for button in buttons:
@@ -8,24 +10,29 @@ def createMenuMarkup(buttons):
     return markup
 
 
-def privilegedMenuMarkup():
-    return createMenuMarkup([
-        ['Отметка о начале работы', 'workStart'],
-        ['Отметка о конце работы', 'workEnd'],
-        ['Информация', 'userInfo'],
-        ['Отчет за сегодня', 'forToday'],
-        ['Статус', 'status']])
+class MenuBuilder():
+    buttons : ButtonsList
+
+    def __init__(self, buttons_ : dict) -> None:
+        self.buttons = buttons_
 
 
-def unprivilegedMenuMarkup():
-    return createMenuMarkup([
-        ['Отметка о начале работы', 'workStart'],
-        ['Отметка о конце работы', 'workEnd'],
-        ['Статус', 'status']])
+    def privilegedMenuMarkup(self):
+        return createMenuMarkup([
+            [self.buttons.start_interval, 'workStart'],
+            [self.buttons.finish_interval, 'workEnd'],
+            [self.buttons.info, 'userInfo'],
+            [self.buttons.today_report, 'forToday'],
+            [self.buttons.status, 'status']])
 
+    def unprivilegedMenuMarkup(self):
+        return createMenuMarkup([
+            [self.buttons.start_interval, 'workStart'],
+            [self.buttons.finish_interval, 'workEnd'],
+            [self.buttons.status, 'status']])
 
-def buildStartMenu(username : str, privileged_users : dict):
-    if username in privileged_users:
-        return privilegedMenuMarkup()
-    else:
-        return unprivilegedMenuMarkup()
+    def buildStartMenu(self, username : str, privileged_users : dict):
+        if username in privileged_users:
+            return self.privilegedMenuMarkup()
+        else:
+            return self.unprivilegedMenuMarkup()

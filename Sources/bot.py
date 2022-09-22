@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 import logging
 
-import MenuBuilder
+from MenuBuilder import MenuBuilder
 import ConfigManager
 import ButtonCallbackManager
 

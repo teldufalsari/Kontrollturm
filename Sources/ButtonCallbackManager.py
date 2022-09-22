@@ -3,7 +3,6 @@ import telebot
 
 
 import ConfigManager
-import MenuBuilder
 import DatabaseManager
 
 
@@ -18,7 +17,7 @@ class ButtonCallbackManager:
         self.db_manager = DatabaseManager.DatabaseManager(self.config.settings.database_file_path)
 
     def callMenu(self, chat):
-        self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username, self.config.privileged_users))
+        self.bot.send_message(chat.id,'menu', reply_markup=self.config.menu_builder.buildStartMenu(chat.username, self.config.privileged_users))
 
 
     def parseData(self, username):
@@ -41,7 +40,6 @@ class ButtonCallbackManager:
     def dayComments(self, message, bot_dummy) -> None:
         self.db_manager.workEnded(message.chat.username, message.text)
         self.bot.send_message(message.chat.id, self.config.messages.finish_time_saved)
-        #self.bot.send_message(message.chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(message.chat.username, self.config.privileged_users))
         self.callMenu(message.chat)
 
 
@@ -56,7 +54,6 @@ class ButtonCallbackManager:
         if len(starts) - 1 == len(ends):
             msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%d/%m/%Y %H:%M')) + '\n'
         self.bot.send_message(message.chat.id, msg)
-        #self.bot.send_message(message.chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(message.chat.username, self.config.privileged_users))
         self.callMenu(message.chat)
 
 
@@ -67,7 +64,6 @@ class ButtonCallbackManager:
         else:
             self.db_manager.workStarted(chat.username)
             self.bot.send_message(chat.id, self.config.messages.start_time_saved)
-        #self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username, self.config.privileged_users))
         self.callMenu(chat)
 
 
@@ -75,7 +71,6 @@ class ButtonCallbackManager:
         starts, ends, waitingFor, descrs = self.parseData(chat.username)
         if len(starts) - 1 != len(ends):
             self.bot.send_message(chat.id, self.config.messages.interval_not_started)
-            #self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username, self.config.privileged_users))
             self.callMenu(chat)
         else:
             mesg = self.bot.send_message(chat.id, self.config.messages.write_report)
@@ -119,7 +114,6 @@ class ButtonCallbackManager:
             if len(starts) - 1 == len(ends):
                 msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
             self.bot.send_message(chat.id, msg)
-        #self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username, self.config.privileged_users))
         self.callMenu(chat)
 
 
@@ -159,6 +153,4 @@ class ButtonCallbackManager:
             if len(starts) - 1 == len(ends):
                 msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime("%H:%M")) + '\n'
             self.bot.send_message(chat.id, msg)
-
-        #self.bot.send_message(chat.id, 'menu', reply_markup=MenuBuilder.buildStartMenu(chat.username, self.config.privileged_users))
         self.callMenu(chat)

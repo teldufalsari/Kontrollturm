@@ -16,4 +16,10 @@ duration = Duration
 tasks_completed = Tasks completed
 today_stats = Your statistics for today
 
+[BUTTONS]
+start_interval = Start interval
+finish_interval = Finish interval
+info = Info
+today_report = Report for today
+status = Status
 
