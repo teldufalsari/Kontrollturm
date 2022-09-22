@@ -19,7 +19,7 @@ class KontrollBot:
 
         @self.bot.message_handler(commands=['start'])
         def starter(message):
-            self.bot.send_message(message.chat.id, self.config.messages.prompt, reply_markup=MenuBuilder.buildStartMenu(message.chat.username))
+            self.bot.send_message(message.chat.id, self.config.messages.prompt, reply_markup=MenuBuilder.buildStartMenu(message.chat.username, self.config.privileged_users))
 
         @self.bot.callback_query_handler(func=lambda call: True)
         def buttons(call):

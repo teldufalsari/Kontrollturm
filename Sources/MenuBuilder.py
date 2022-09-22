@@ -24,8 +24,8 @@ def unprivilegedMenuMarkup():
         ['Статус', 'status']])
 
 
-def buildStartMenu(username):
-    if username == "timattttt" or username == "arfarafar":
+def buildStartMenu(username : str, privileged_users : dict):
+    if username in privileged_users:
         return privilegedMenuMarkup()
     else:
         return unprivilegedMenuMarkup()
