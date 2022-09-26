@@ -20,7 +20,7 @@ class ButtonCallbackManager:
 
 
     def parseData(self, username):
-        data = self.db_manager.getWorkerInfo(username)
+        data = self.db_manager.getEmployeeInfo(username)
         starts = []
         ends = []
         descrs = []

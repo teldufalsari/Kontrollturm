@@ -21,7 +21,7 @@ class DatabaseManager:
         try:
             sqlite_connection = sqlite3.connect(self.database_path)
             cursor = sqlite_connection.cursor()
-            sqlite_insert_with_param = '''INSERT or IGNORE INTO SU_WORKERS_DB
+            sqlite_insert_with_param = '''INSERT OR IGNORE INTO workers_table
                                 (id, name, data, type, text)
                                 VALUES (?, ?, ?, ?, ?);'''
             now = datetime.now()
@@ -44,7 +44,7 @@ class DatabaseManager:
         try:
             sqlite_connection = sqlite3.connect(self.database_path)
             cursor = sqlite_connection.cursor()
-            sqlite_insert_with_param = '''INSERT or IGNORE INTO SU_WORKERS_DB
+            sqlite_insert_with_param = '''INSERT OR IGNORE INTO workers_table
                                 (id, name, data, type, text)
                                 VALUES (?, ?, ?, ?, ?);'''
             now = datetime.now()
@@ -62,18 +62,21 @@ class DatabaseManager:
                 logging.info('Inserted workStart to DB: [name = ' + name + ', time = ' + now.strftime('%d/%m/%Y %H:%M'))
 
 
-    def getWorkerInfo(self, name) -> list:
+    def getEmployeeInfo(self, name) -> list:
         sqlite_connection = None
         result = []
         try:
             sqlite_connection = sqlite3.connect(self.database_path)
             cursor = sqlite_connection.cursor()
-            sql_select_query = '''select * from SU_WORKERS_DB'''
+            sql_select_query = '''SELECT * 
+                                  FROM workers_table
+                                  WHERE name =''' + f"'{name}'"
             cursor.execute(sql_select_query)
-            lines = cursor.fetchall()
-            for line in lines:
-                if line[1] == name:
-                    result.append(line)
+            #lines = cursor.fetchall()
+            #for line in lines:
+            #    if line[1] == name:
+            #        result.append(line)
+            result = cursor.fetchall()
             cursor.close()
         except sqlite3.Error as error:
             logging.critical('Error while requesting data from DB, caused by: ' + str(error))
@@ -93,7 +96,7 @@ class DatabaseManager:
         try:
             sqlite_connection = sqlite3.connect(self.database_path)
             cursor = sqlite_connection.cursor()
-            sql_select_query = '''select * from SU_WORKERS_DB'''
+            sql_select_query = '''SELECT * FROM workers_table'''
             cursor.execute(sql_select_query)
             lines = cursor.fetchall()
             result = lines

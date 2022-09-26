@@ -15,7 +15,7 @@ def databaseInit(path : str) -> None:
         record = cursor.fetchall()
         print('SQLite version: ', record)
         # create table in the DB
-        sqlite_create_table_query = '''CREATE TABLE SU_WORKERS_DB (
+        sqlite_create_table_query = '''CREATE TABLE workers_table (
                                     id INTEGER PRIMARY KEY,
                                     name TEXT,
                                     data TEXT,
