@@ -66,6 +66,8 @@ class ConfigParser:
             'tasks_completed' : 'Tasks completed',
             'today_stats' : 'Employee statistics for today',
             'nothing_to_download' : 'Nothing to download',
+            'day_table_header' : 'Name,Duration,Description',
+            'user_table_header' : 'Started,Finished,Duration,Description',
         }
         default_lang_file['BUTTONS'] = {
             'start_interval' : 'Start interval',
@@ -103,6 +105,8 @@ class ConfigParser:
             msgs['tasks_completed'],
             msgs['today_stats'],
             msgs['nothing_to_download'],
+            msgs['user_table_header'],
+            msgs['day_table_header'],
         )
 
     def loadSettings(self) -> SettingsList:

@@ -16,6 +16,8 @@ duration = Длительность
 tasks_completed = сделано
 today_stats = Статус текущего пользователя на сегодня
 nothing_to_download = Нет данных для загрузки
+day_table_header = Имя,Длительность,Описание
+user_table_header = Начало,Конец,Длительность,Описание
 
 [BUTTONS]
 start_interval = Отметка о начале работы

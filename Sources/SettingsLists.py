@@ -55,6 +55,8 @@ class MessagesList():
     tasks_completed = ''
     today_stats = ''
     nothing_to_download = ''
+    user_table_header = ''
+    day_table_header = ''
 
     def __init__(self, prompt_,
     finish_time_saved_, interval_not_finished_,
@@ -65,7 +67,9 @@ class MessagesList():
     unfinished_interval_, enter_employee_name_,
     duration_, tasks_completed_,
     today_stats_,
-    nothing_to_download_) -> None:
+    nothing_to_download_,
+    user_table_header_,
+    day_table_header_) -> None:
         self.prompt = prompt_
         self.finish_time_saved = finish_time_saved_
         self.interval_not_finished = interval_not_finished_
@@ -83,3 +87,5 @@ class MessagesList():
         self.tasks_completed = tasks_completed_
         self.today_stats = today_stats_
         self.nothing_to_download = nothing_to_download_
+        self.user_table_header = user_table_header_
+        self.day_table_header = day_table_header_

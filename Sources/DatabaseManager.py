@@ -25,8 +25,8 @@ class DatabaseManager:
                                 (id, name, data, type, text)
                                 VALUES (?, ?, ?, ?, ?);'''
             now = datetime.now()
-            print('user: [' + name + '] work started at ' + now.strftime('%d/%m/%Y %H:%M'))
-            data_tuple = (currentMilliTIme(), name, now.strftime('%d/%m/%Y %H:%M'), 'startTime', '')
+            print('user: [' + name + '] work started ' + now.strftime('%d.%m.%Y at %H:%M'))
+            data_tuple = (currentMilliTIme(), name, now.strftime('%d.%m.%Y %H:%M'), 'startTime', '')
             cursor.execute(sqlite_insert_with_param, data_tuple)
             sqlite_connection.commit()
             cursor.close()
@@ -36,7 +36,7 @@ class DatabaseManager:
         finally:
             if sqlite_connection:
                 sqlite_connection.close()
-                logging.info('Inserted workStart to DB: [name = ' + name + ', time = ' + now.strftime('%d/%m/%Y %H:%M'))
+                logging.info('Inserted workStart to DB: [name = ' + name + ', time = ' + now.strftime('%d.%m.%Y %H:%M'))
 
 
     def workEnded(self, name, text) -> None:
@@ -48,8 +48,8 @@ class DatabaseManager:
                                 (id, name, data, type, text)
                                 VALUES (?, ?, ?, ?, ?);'''
             now = datetime.now()
-            print('user: [' + name + '] work end at ' + now.strftime('%d/%m/%Y %H:%M') + ' with message + [' + text + ']')
-            data_tuple = (currentMilliTIme(), name, now.strftime('%d/%m/%Y %H:%M'), 'endTime', text)
+            print('user: [' + name + '] work ended ' + now.strftime('%d.%m.%Y at %H:%M') + ' with message + [' + text + ']')
+            data_tuple = (currentMilliTIme(), name, now.strftime('%d.%m.%Y %H:%M'), 'endTime', text)
             cursor.execute(sqlite_insert_with_param, data_tuple)
             sqlite_connection.commit()
             cursor.close()
@@ -59,7 +59,7 @@ class DatabaseManager:
         finally:
             if sqlite_connection:
                 sqlite_connection.close()
-                logging.info('Inserted workStart to DB: [name = ' + name + ', time = ' + now.strftime('%d/%m/%Y %H:%M'))
+                logging.info('Inserted workStart to DB: [name = ' + name + ', time = ' + now.strftime('%d.%m.%Y %H:%M'))
 
 
     def getEmployeeInfo(self, name) -> list:

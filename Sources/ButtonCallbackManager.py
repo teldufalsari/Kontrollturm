@@ -31,10 +31,10 @@ class ButtonCallbackManager:
         waiting_for = 'Start'
         for line in data:
             if line[3] == 'startTime':
-                starts.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                 waiting_for = "end"
             if line[3] == 'endTime':
-                ends.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                 descrs.append(line[4])
                 waiting_for = 'start'
         return starts, ends, waiting_for, descrs
@@ -52,10 +52,10 @@ class ButtonCallbackManager:
         msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
         msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
         for i in range(min(len(starts), len(ends))):
-            msg += '-> ' + str(starts[i].strftime('%d/%m/%Y'))
+            msg += '-> ' + str(starts[i].strftime('%d.%m.%Y'))
             msg += ', ' + self.config.messages.duration + str((ends[i]-starts[i])) + ', ' + self.config.messages.tasks_completed + ':\n' + descrs[i] + '\n'
         if len(starts) - 1 == len(ends):
-            msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%d/%m/%Y %H:%M')) + '\n'
+            msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%d.%m.%Y %H:%M')) + '\n'
         self.bot.send_message(message.chat.id, msg)
         self.callMenu(message.chat)
 
@@ -102,9 +102,9 @@ class ButtonCallbackManager:
             descrs = []
             for line in val:
                 if line[3] == 'startTime':
-                    starts.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                 if line[3] == 'endTime':
-                    ends.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                     descrs.append(line[4])
 
             msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
@@ -141,9 +141,9 @@ class ButtonCallbackManager:
 
             for line in val:
                 if line[3] == 'startTime':
-                    starts.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                 if line[3] == 'endTime':
-                    ends.append(datetime.strptime(line[2], '%d/%m/%Y %H:%M'))
+                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
                     descrs.append(line[4])
             msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
             msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
@@ -170,14 +170,14 @@ class ButtonCallbackManager:
 
     def downloadUserInfo(self, message, bot_dummy):
         starts, ends, waiting_for, descrs = self.parseData(message.text)
-        tmp_file = ''
+        tmp_file = self.config.messages.user_table_header + '\n'
         for i in range(min(len(starts), len(ends))):
             tmp_file += str(starts[i].strftime('%d.%m.%Y')) + ','
             tmp_file += str(ends[i].strftime('%d.%m.%Y')) + ','
             tmp_file += str((ends[i]-starts[i])) + ','
             tmp_file += descrs[i] + '\n'
         if len(starts) - 1 == len(ends):
-            tmp_file += str(starts[i].strftime('%d/%m/%Y')) + ',' 
+            tmp_file += str(starts[i].strftime('%d.%m.%Y')) + ',' 
             tmp_file += '-,' + '-,' + '-\n'
         
         if len(tmp_file) == 0:
@@ -201,7 +201,7 @@ class ButtonCallbackManager:
                 users[line[1]].append(line)
 
         for key, val in users.items():
-            tmp_file = ''
+            tmp_file = self.config.messages.day_table_header + '\n'
             starts = []
             ends = []
             descrs = []
@@ -217,7 +217,6 @@ class ButtonCallbackManager:
                 tmp_file += str(duration.seconds//3600) + ':' + str((duration.seconds//60)%60) + ','
                 tmp_file += descrs[i] + '\n'
             if len(starts) - 1 == len(ends):
-                msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
                 tmp_file += key + ',' + str(starts[-1].strftime('%H:%M')) + ' -,-\n'
 
             if len(tmp_file) == 0:

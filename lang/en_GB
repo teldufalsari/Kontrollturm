@@ -16,6 +16,8 @@ duration = Duration
 tasks_completed = Tasks completed
 today_stats = Your statistics for today
 nothing_to_download = Nothing to download
+day_table_header = Name,Duration,Description
+user_table_header = Started,Finished,Duration,Description
 
 [BUTTONS]
 start_interval = Start interval
