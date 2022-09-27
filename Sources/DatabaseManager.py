@@ -72,10 +72,6 @@ class DatabaseManager:
                                   FROM workers_table
                                   WHERE name =''' + f"'{name}'"
             cursor.execute(sql_select_query)
-            #lines = cursor.fetchall()
-            #for line in lines:
-            #    if line[1] == name:
-            #        result.append(line)
             result = cursor.fetchall()
             cursor.close()
         except sqlite3.Error as error:

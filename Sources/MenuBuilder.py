@@ -22,7 +22,8 @@ class MenuBuilder():
             [self.buttons.finish_interval, 'workEnd'],
             [self.buttons.info, 'userInfo'],
             [self.buttons.today_report, 'forToday'],
-            [self.buttons.status, 'status']])
+            [self.buttons.status, 'status'],
+            [self.buttons.downloads, 'downloads']])
 
     def unprivilegedMenuMarkup(self) -> types.InlineKeyboardMarkup:
         return createMenuMarkup([
@@ -35,3 +36,9 @@ class MenuBuilder():
             return self.privilegedMenuMarkup()
         else:
             return self.unprivilegedMenuMarkup()
+
+    def buildDownloadMenu(self) -> types.InlineKeyboardMarkup:
+        return createMenuMarkup([
+            [self.buttons.download_user, 'downloadUser'],
+            [self.buttons.download_day, 'downloadDay'],
+            [self.buttons.download_whole_db, 'downloadWholeDb']])

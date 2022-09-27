@@ -1,4 +1,5 @@
 from datetime import datetime
+import io
 import telebot
 
 from Sources.ConfigManager import ConfigManager
@@ -16,7 +17,10 @@ class ButtonCallbackManager:
         self.db_manager = DatabaseManager(self.config.settings.database_file_path)
 
     def callMenu(self, chat):
-        self.bot.send_message(chat.id,'menu', reply_markup=self.config.menu_builder.buildStartMenu(chat.username, self.config.privileged_users))
+        self.bot.send_message(chat.id, 'Menu', reply_markup=self.config.menu_builder.buildStartMenu(chat.username, self.config.privileged_users))
+
+    def callDownloads(self, chat):
+      self.bot.send_message(chat.id, 'Downloads', reply_markup=self.config.menu_builder.buildDownloadMenu())
 
 
     def parseData(self, username):
@@ -92,7 +96,7 @@ class ButtonCallbackManager:
                 users[line[1]].append(line)
 
         for key, val in users.items():
-            msg = self.config.messages.employee_activity + ' ' + key + "\n"
+            msg = self.config.messages.employee_activity + ' ' + key + '\n'
             starts = []
             ends = []
             descrs = []
@@ -152,4 +156,84 @@ class ButtonCallbackManager:
             if len(starts) - 1 == len(ends):
                 msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
             self.bot.send_message(chat.id, msg)
+        self.callMenu(chat)
+
+
+    def downloadsCallback(self, chat):
+        self.callDownloads(chat)
+
+
+    def downloadUserCallback(self, chat):
+        mesg = self.bot.send_message(chat.id, self.config.messages.enter_employee_name + ':')
+        self.bot.register_next_step_handler(mesg, self.downloadUserInfo, self.bot)
+
+
+    def downloadUserInfo(self, message, bot_dummy):
+        starts, ends, waiting_for, descrs = self.parseData(message.text)
+        tmp_file = ''
+        for i in range(min(len(starts), len(ends))):
+            tmp_file += str(starts[i].strftime('%d.%m.%Y')) + ','
+            tmp_file += str(ends[i].strftime('%d.%m.%Y')) + ','
+            tmp_file += str((ends[i]-starts[i])) + ','
+            tmp_file += descrs[i] + '\n'
+        if len(starts) - 1 == len(ends):
+            tmp_file += str(starts[i].strftime('%d/%m/%Y')) + ',' 
+            tmp_file += '-,' + '-,' + '-\n'
+        
+        if len(tmp_file) == 0:
+            self.bot.send_message(message.chat.id, self.config.messages.nothing_to_download)
+            self.callMenu(message.chat)
+            return
+        document = io.BytesIO(str.encode(tmp_file))
+        document.name = message.text + '_stats.csv'
+        self.bot.send_document(message.chat.id, document)
+        self.callMenu(message.chat)
+
+
+    def downloadDayCallback(self, chat):
+        data = self.db_manager.getAll()
+        users = {}
+        for line in data:
+            dt = datetime.fromtimestamp(int(line[0])/1000.0)
+            if users.get(line[1]) == None:
+                users[line[1]] = []
+            if dt.date() == datetime.today().date():
+                users[line[1]].append(line)
+
+        for key, val in users.items():
+            tmp_file = ''
+            starts = []
+            ends = []
+            descrs = []
+            for line in val:
+                if line[3] == 'startTime':
+                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
+                if line[3] == 'endTime':
+                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
+                    descrs.append(line[4])
+            for i in range(min(len(starts), len(ends))):
+                duration = ends[i] - starts[i]
+                tmp_file += key + ','
+                tmp_file += str(duration.seconds//3600) + ':' + str((duration.seconds//60)%60) + ','
+                tmp_file += descrs[i] + '\n'
+            if len(starts) - 1 == len(ends):
+                msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
+                tmp_file += key + ',' + str(starts[-1].strftime('%H:%M')) + ' -,-\n'
+
+            if len(tmp_file) == 0:
+                self.bot.send_message(chat.id, self.config.messages.nothing_to_download)
+                self.callMenu(chat)
+                return
+
+            document = io.BytesIO(str.encode(tmp_file))
+            document.name = 'Today.csv'
+            self.bot.send_document(chat.id, document)
+        self.callMenu(chat)
+
+
+    def downloadWholeDbCallback(self, chat):
+        with open(self.config.settings.database_file_path, 'rb') as db_file:
+            document = io.BytesIO(db_file.read())
+            document.name = 'DB.s3db'
+            self.bot.send_document(chat.id, document)
         self.callMenu(chat)

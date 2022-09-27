@@ -4,13 +4,24 @@ class ButtonsList():
     info = ''
     today_report = ''
     status = ''
+    downloads = ''
+    download_user = ''
+    download_day = ''
+    download_whole_csv = ''
+    download_whole_db = ''
 
-    def __init__(self, start_interval_, finish_interval_, info_, today_report_, status_) -> None:
+    def __init__(self, start_interval_, finish_interval_, info_, today_report_, status_,
+                 downloads_, download_user_, download_day_, download_whole_csv_, download_whole_db_) -> None:
         self.start_interval = start_interval_
         self.finish_interval = finish_interval_
         self.info = info_
         self.today_report = today_report_
         self.status = status_
+        self.downloads = downloads_
+        self.download_user = download_user_
+        self.download_day = download_day_
+        self.download_whole_csv = download_whole_csv_
+        self.download_whole_db = download_whole_db_
 
 
 class SettingsList():
@@ -43,6 +54,7 @@ class MessagesList():
     duration = ''
     tasks_completed = ''
     today_stats = ''
+    nothing_to_download = ''
 
     def __init__(self, prompt_,
     finish_time_saved_, interval_not_finished_,
@@ -52,7 +64,8 @@ class MessagesList():
     intervals_finished_, unfinished_session_,
     unfinished_interval_, enter_employee_name_,
     duration_, tasks_completed_,
-    today_stats_) -> None:
+    today_stats_,
+    nothing_to_download_) -> None:
         self.prompt = prompt_
         self.finish_time_saved = finish_time_saved_
         self.interval_not_finished = interval_not_finished_
@@ -69,3 +82,4 @@ class MessagesList():
         self.duration = duration_
         self.tasks_completed = tasks_completed_
         self.today_stats = today_stats_
+        self.nothing_to_download = nothing_to_download_

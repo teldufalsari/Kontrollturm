@@ -15,6 +15,7 @@ enter_employee_name = Enter employee name to retrieve their statistics
 duration = Duration
 tasks_completed = Tasks completed
 today_stats = Your statistics for today
+nothing_to_download = Nothing to download
 
 [BUTTONS]
 start_interval = Start interval
@@ -22,4 +23,9 @@ finish_interval = Finish interval
 info = Info
 today_report = Report for today
 status = Status
+downloads = Downloads
+download_user = Downloads stats for employee
+download_day = Download stats for today
+download_whole_csv = Download database (.csv)
+download_whole_db = Download database (.s3db)
 

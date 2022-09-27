@@ -65,6 +65,7 @@ class ConfigParser:
             'duration' : 'Duration',
             'tasks_completed' : 'Tasks completed',
             'today_stats' : 'Employee statistics for today',
+            'nothing_to_download' : 'Nothing to download',
         }
         default_lang_file['BUTTONS'] = {
             'start_interval' : 'Start interval',
@@ -72,6 +73,11 @@ class ConfigParser:
             'info' : 'Info',
             'today_report' : 'Report for today',
             'status' : 'Status',
+            'downloads' : 'Downloads',
+            'download_user' : 'Downloads stats for employee',
+            'download_day' : 'Download stats for today',
+            'download_whole_csv' : 'Download whole DB (.csv)',
+            'download_whole_db' : 'Download whole DB (.s3db)',
         }
         with open(path, 'w') as lang_file:
             default_lang_file.write(lang_file)
@@ -96,6 +102,7 @@ class ConfigParser:
             msgs['duration'],
             msgs['tasks_completed'],
             msgs['today_stats'],
+            msgs['nothing_to_download'],
         )
 
     def loadSettings(self) -> SettingsList:
@@ -114,6 +121,11 @@ class ConfigParser:
             btns['info'],
             btns['today_report'],
             btns['status'],
+            btns['downloads'],
+            btns['download_user'],
+            btns['download_day'],
+            btns['download_whole_csv'],
+            btns['download_whole_db'],
         )
 
 
