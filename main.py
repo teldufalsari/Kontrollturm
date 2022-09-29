@@ -18,9 +18,9 @@ def databaseInit(path : str) -> None:
         sqlite_create_table_query = '''CREATE TABLE workers_table (
                                     id INTEGER PRIMARY KEY,
                                     name TEXT,
-                                    data TEXT,
-                                    type TEXT,
-                                    text TEXT);'''
+                                    startDate TEXT,
+                                    endDate TEXT,
+                                    comments TEXT);'''
         cursor.execute(sqlite_create_table_query)
         sqlite_connection.commit()
         cursor.close()

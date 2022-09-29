@@ -23,56 +23,59 @@ class ButtonCallbackManager:
       self.bot.send_message(chat.id, 'Downloads', reply_markup=self.config.menu_builder.buildDownloadMenu())
 
 
-    def parseData(self, username):
-        data = self.db_manager.getEmployeeInfo(username)
-        starts = []
-        ends = []
-        descrs = []
-        waiting_for = 'Start'
-        for line in data:
-            if line[3] == 'startTime':
-                starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                waiting_for = "end"
-            if line[3] == 'endTime':
-                ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                descrs.append(line[4])
-                waiting_for = 'start'
-        return starts, ends, waiting_for, descrs
-
-
     def dayComments(self, message, bot_dummy) -> None:
-        self.db_manager.workEnded(message.chat.username, message.text)
+        interval = self.db_manager.fetchLastRecordForUser(message.chat.username)
+        id = interval[0]
+        self.db_manager.workFinished(message.chat.username, id, message.text)
         self.bot.send_message(message.chat.id, self.config.messages.finish_time_saved)
         self.callMenu(message.chat)
 
 
-    def nameAsk(self, message, bot_dummy) -> None:
-        starts, ends, waiting_for, descrs = self.parseData(message.text)
-        msg = self.config.messages.work_statistics + ' ' + message.text + ':\n'
-        msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
-        msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
-        for i in range(min(len(starts), len(ends))):
-            msg += '-> ' + str(starts[i].strftime('%d.%m.%Y'))
-            msg += ', ' + self.config.messages.duration + str((ends[i]-starts[i])) + ', ' + self.config.messages.tasks_completed + ':\n' + descrs[i] + '\n'
-        if len(starts) - 1 == len(ends):
-            msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%d.%m.%Y %H:%M')) + '\n'
+    def sendEmployeeInfo(self, message, bot_dummy) -> None:
+        intervals = self.db_manager.fetchEmployeeInfo(message.text)
+        if len(intervals) == 0:
+            self.bot.send_message(message.chat.id, 'No records found')
+            self.callMenu(message.chat)
+            return
+        last_interval = intervals[-1]
+        start_count = len(intervals)
+        if last_interval[3] == '':
+            finish_count = start_count - 1
+        else:
+            finish_count = start_count
+        msg = f'{self.config.messages.work_statistics} {message.text}:\n'
+        msg += f'{self.config.messages.intervals_started}: {start_count}, {self.config.messages.intervals_finished}: {finish_count}\n'
+        for i in range (0, finish_count):
+            duration = datetime.strptime(intervals[i][3], '%d.%m.%Y %H:%M') - datetime.strptime(intervals[i][2], '%d.%m.%Y %H:%M')
+            msg += f'-> {intervals[i][2]}, '
+            msg += f'{self.config.messages.duration}: {duration}, {self.config.messages.tasks_completed}:\n{intervals[i][4]}\n'
+        if finish_count != start_count:
+            msg += f'-> {self.config.messages.unfinished_session}: {last_interval[2]}\n'
         self.bot.send_message(message.chat.id, msg)
         self.callMenu(message.chat)
 
 
     def workStartCallback(self, chat) -> None:
-        starts, ends, waiting_for, descrs = self.parseData(chat.username)
-        if len(starts) != len(ends):
-            self.bot.send_message(chat.id, self.config.messages.interval_not_finished)
-        else:
+        last_interval = self.db_manager.fetchLastRecordForUser(chat.username)
+        if last_interval == None:
             self.db_manager.workStarted(chat.username)
             self.bot.send_message(chat.id, self.config.messages.start_time_saved)
+        else:
+            if last_interval[3] == '':
+                self.bot.send_message(chat.id, self.config.messages.interval_not_finished)
+            else:
+                self.db_manager.workStarted(chat.username)
+                self.bot.send_message(chat.id, self.config.messages.start_time_saved)
         self.callMenu(chat)
 
 
     def workEndCallback(self, chat) -> None:
-        starts, ends, waitingFor, descrs = self.parseData(chat.username)
-        if len(starts) - 1 != len(ends):
+        last_interval = self.db_manager.fetchLastRecordForUser(chat.username)
+        if last_interval == None:
+            self.bot.send_message(chat.id, self.config.messages.interval_not_started)
+            self.callMenu(chat)
+            return
+        if last_interval[3] != '':
             self.bot.send_message(chat.id, self.config.messages.interval_not_started)
             self.callMenu(chat)
         else:
@@ -82,80 +85,59 @@ class ButtonCallbackManager:
 
     def userInfoCallback(self, chat):
         mesg = self.bot.send_message(chat.id, self.config.messages.enter_employee_name + ':')
-        self.bot.register_next_step_handler(mesg, self.nameAsk, self.bot)
+        self.bot.register_next_step_handler(mesg, self.sendEmployeeInfo, self.bot)
 
 
     def forTodayCallback(self, chat):
-        data = self.db_manager.getAll()
+        intervals = self.db_manager.fetchDate(datetime.today())
+        if len(intervals) == 0:
+            self.bot.send_message(chat.id, 'Nothing to display')
+            self.callMenu(chat)
+            return
         users = {}
-        for line in data:
-            dt = datetime.fromtimestamp(int(line[0])/1000.0)
-            if users.get(line[1]) == None:
-                users[line[1]] = []
-            if dt.date() == datetime.today().date():
-                users[line[1]].append(line)
-
+        for interval in intervals:
+            if users.get(interval[1]) == None:
+                users[interval[1]] = []
+            users[interval[1]].append(interval)
+        msg = ''
         for key, val in users.items():
-            msg = self.config.messages.employee_activity + ' ' + key + '\n'
-            starts = []
-            ends = []
-            descrs = []
-            for line in val:
-                if line[3] == 'startTime':
-                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                if line[3] == 'endTime':
-                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                    descrs.append(line[4])
-
-            msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
-            msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
-            for i in range(min(len(starts), len(ends))):
-                td = ends[i]-starts[i]
-                msg += '-> ' + self.config.messages.duration +  str(td.seconds//3600) + ':' + str((td.seconds//60)%60) + ', '
-                msg += self.config.messages.tasks_completed + ':\n' + descrs[i] + '\n'
-
-            if len(starts) - 1 == len(ends):
-                msg += '-> ' + self.config.messages.unfinished_session + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
-            self.bot.send_message(chat.id, msg)
+            msg += f'{self.config.messages.employee_activity} {key}:\n'
+            last_interval = val[-1]
+            start_count = len(val)
+            finish_count = (start_count - 1 if (last_interval[3] == '') else start_count)
+            msg += f'{self.config.messages.intervals_started}: {start_count}, {self.config.messages.intervals_finished}: {finish_count}\n'
+            for i in range(0, finish_count):
+                duration = datetime.strptime(intervals[i][3], '%d.%m.%Y %H:%M') - datetime.strptime(intervals[i][2], '%d.%m.%Y %H:%M')
+                msg += f'-> {self.config.messages.duration}: {duration}, {self.config.messages.tasks_completed}:\n{intervals[i][4]}\n'
+            if start_count != finish_count:
+                msg += f'-> {self.config.messages.unfinished_interval} since {last_interval[2]}\n'
+        self.bot.send_message(chat.id, msg)
         self.callMenu(chat)
 
 
     def statusCallback(self, chat):
-        data = self.db_manager.getAll()
-        users = {}
-
-        for line in data:
-            dt = datetime.fromtimestamp(int(line[0])/1000.0)
-            if users.get(line[1]) == None:
-                users[line[1]] = []
-            if dt.date() == datetime.today().date():
-                users[line[1]].append(line)
-
-        for key, val in users.items():
-            if key != chat.username:
-                continue
-            msg = self.config.messages.today_stats + ':\n'
-            starts = []
-            ends = []
-            descrs = []
-
-            for line in val:
-                if line[3] == 'startTime':
-                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                if line[3] == 'endTime':
-                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                    descrs.append(line[4])
-            msg += self.config.messages.intervals_started + ': ' + str(len(starts)) + ', '
-            msg += self.config.messages.intervals_finished + ': ' + str(len(ends)) + '\n'
-
-            for i in range(min(len(starts), len(ends))):
-                td = ends[i]-starts[i]
-                msg += '-> ' + self.config.messages.duration + ': ' + str(td.seconds//3600) + ':' + str((td.seconds//60)%60) + ', '
-                msg += self.config.messages.tasks_completed + ': \n' + descrs[i] + '\n'
-
-            if len(starts) - 1 == len(ends):
-                msg += '->' + self.config.messages.unfinished_interval + ': ' + str(starts[-1].strftime('%H:%M')) + '\n'
-            self.bot.send_message(chat.id, msg)
+        intervals = self.db_manager.fetchEmployeeInfo(chat.username)
+        if len(intervals) == 0:
+            self.bot.send_message(chat.id, 'Nothing to display')
+            self.callMenu(chat)
+            return
+        last_interval = intervals[-1]
+        start_count = len(intervals)
+        if (last_interval[3] == ''):
+            finish_count = start_count - 1
+        else:
+            finish_count = start_count
+        msg = self.config.messages.today_stats + ':\n'
+        for i in range(0, finish_count):
+            start_date = datetime.strptime(intervals[i][2], '%d.%m.%Y %H:%M')
+            finish_date = datetime.strptime(intervals[i][3], '%d.%m.%Y %H:%M')
+            if (start_date.date() == datetime.today().date()) or (finish_date.date() == datetime.today().date()):
+                duration = finish_date - start_date
+                msg += '->' + self.config.messages.duration + f': {duration}\n'
+                msg += self.config.messages.tasks_completed + ':\n' + intervals[i][4] + '\n'
+        if start_count != finish_count:
+            msg += '->' + self.config.messages.unfinished_interval + ': ' + last_interval[2]
+        self.bot.send_message(chat.id, msg)
         self.callMenu(chat)
 
 
@@ -169,21 +151,15 @@ class ButtonCallbackManager:
 
 
     def downloadUserInfo(self, message, bot_dummy):
-        starts, ends, waiting_for, descrs = self.parseData(message.text)
-        tmp_file = self.config.messages.user_table_header + '\n'
-        for i in range(min(len(starts), len(ends))):
-            tmp_file += str(starts[i].strftime('%d.%m.%Y')) + ','
-            tmp_file += str(ends[i].strftime('%d.%m.%Y')) + ','
-            tmp_file += str((ends[i]-starts[i])) + ','
-            tmp_file += descrs[i] + '\n'
-        if len(starts) - 1 == len(ends):
-            tmp_file += str(starts[i].strftime('%d.%m.%Y')) + ',' 
-            tmp_file += '-,' + '-,' + '-\n'
-        
-        if len(tmp_file) == 0:
+        intervals = self.db_manager.fetchEmployeeInfo(message.text)
+        if len(intervals) == 0:
             self.bot.send_message(message.chat.id, self.config.messages.nothing_to_download)
             self.callMenu(message.chat)
             return
+        tmp_file = self.config.messages.user_table_header + '\n'
+        for interval in intervals:
+            duration = datetime.strptime(interval[3], '%d.%m.%Y %H:%M') - datetime.strptime(interval[2], '%d.%m.%Y %H:%M')
+            tmp_file += f'{interval[2]},{interval[3]},{duration},{interval[4]}\n'
         document = io.BytesIO(str.encode(tmp_file))
         document.name = message.text + '_stats.csv'
         self.bot.send_document(message.chat.id, document)
@@ -191,44 +167,31 @@ class ButtonCallbackManager:
 
 
     def downloadDayCallback(self, chat):
-        data = self.db_manager.getAll()
+        intervals = self.db_manager.fetchDate(datetime.today())
+        if len(intervals) == 0:
+            self.bot.send_message(chat.id, self.config.messages.nothing_to_download)
+            self.callMenu(chat)
+            return
         users = {}
-        for line in data:
-            dt = datetime.fromtimestamp(int(line[0])/1000.0)
-            if users.get(line[1]) == None:
-                users[line[1]] = []
-            if dt.date() == datetime.today().date():
-                users[line[1]].append(line)
-
+        for interval in intervals:
+            if users.get(interval[1]) == None:
+                users[interval[1]] = []
+            users[interval[1]].append(interval)
+        tmp_file = self.config.messages.day_table_header + '\n'
         for key, val in users.items():
-            tmp_file = self.config.messages.day_table_header + '\n'
-            starts = []
-            ends = []
-            descrs = []
-            for line in val:
-                if line[3] == 'startTime':
-                    starts.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                if line[3] == 'endTime':
-                    ends.append(datetime.strptime(line[2], '%d.%m.%Y %H:%M'))
-                    descrs.append(line[4])
-            for i in range(min(len(starts), len(ends))):
-                duration = ends[i] - starts[i]
-                tmp_file += key + ','
-                tmp_file += str(duration.seconds//3600) + ':' + str((duration.seconds//60)%60) + ','
-                tmp_file += descrs[i] + '\n'
-            if len(starts) - 1 == len(ends):
-                tmp_file += key + ',' + str(starts[-1].strftime('%H:%M')) + ' -,-\n'
-
-            if len(tmp_file) == 0:
-                self.bot.send_message(chat.id, self.config.messages.nothing_to_download)
-                self.callMenu(chat)
-                return
-
-            document = io.BytesIO(str.encode(tmp_file))
-            document.name = 'Today.csv'
-            self.bot.send_document(chat.id, document)
+            last_interval = val[-1]
+            start_count = len(val)
+            finish_count = (start_count - 1 if (last_interval[3] == '') else start_count)
+            for i in range(0, finish_count):
+                duration = datetime.strptime(intervals[i][3], '%d.%m.%Y %H:%M') - datetime.strptime(intervals[i][2], '%d.%m.%Y %H:%M')
+                tmp_file += f'{key},{duration},{intervals[i][4]}\n'
+            if start_count != finish_count:
+                tmp_file += f'{key}, {intervals[i][2]} - ...,<...>\n'
+        document = io.BytesIO(str.encode(tmp_file))
+        document.name = 'Today.csv'
+        self.bot.send_document(chat.id, document)
         self.callMenu(chat)
-
+            
 
     def downloadWholeDbCallback(self, chat):
         with open(self.config.settings.database_file_path, 'rb') as db_file:
